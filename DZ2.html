@@ -1,0 +1,40 @@
+<HTML>
+
+<BODY>
+
+    <canvas width="1000" height="1000" id="can1">
+    </canvas>
+
+    <script>
+
+
+        var canvas = document.getElementById("can1");
+        var ctx = canvas.getContext('2d');
+
+        ctx.clearRect(0, 0, 1000, 1000);
+
+        let img = new Image;
+        img.src = "Eleph.png"; // Change your file NAME if you want 
+
+
+
+        img.onload = function () {
+            ctx.drawImage(img, 100, 100);
+            var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+            for (var i = 0; i < imgData.data.length; i += 4) {
+                let gray = (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2]) / 3;
+                imgData.data[i] = gray;
+                imgData.data[i + 1] = gray;
+                imgData.data[i + 2] = gray;
+            }
+
+            ctx.putImageData(imgData, 0, 0);
+
+
+
+        }
+
+    </script>
+</BODY>
+</HTML>
