@@ -1,10 +1,119 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+<html>
 <body>
-    LOL
+
+<canvas width="1000" height="1000" id="lab01"></canvas>
+
+<script>
+    var canvas = document.getElementById('lab01');
+    var ctx = canvas.getContext('2d');
+
+
+    var j = 0;
+
+    var cubeSize = 10;
+
+    function drawFigure(startX, startY) {
+            ctx.fillStyle = '#ff00ff';
+            // ctx.clearRect(0,0,canvas.width, canvas.height);
+            // var startXY = 30;
+
+            var curX = startX,curY1 = startY,curY2 = startY+cubeSize;
+
+            // for (let i=0;i<diagonal;i++) {
+            while (curY1 !== startY+cubeSize && curY2 !== startY ) {
+                ctx.fillRect(curX,curY1,1,1);
+                ctx.fillRect(curX,curY2,1,1);
+
+                ctx.fillRect(curX, startY, 1, 1);
+                ctx.fillRect(curX, startY + cubeSize, 1, 1);
+
+                ctx.fillRect(startX, curY1, 1, 1);
+                ctx.fillRect(startX + cubeSize, curY1, 1, 1);
+                curY1++;
+                curY2--;
+                curX++;
+            }
+    }
+
+    var x = 20;
+    var y = 100;
+    var XofSin = 0;
+    var YofSin = 0
+    var scale = 70;
+
+
+    setInterval(function () {
+
+        ctx.fillStyle = '#000000';
+        var stIndex = 0;
+        for (let ind = 0; ind < canvas.width; ind++) {
+            ctx.fillRect(x+stIndex+ind,y,1,1);
+        }
+    }, 500)
+        ctx.fillStyle = '#e9e3e3';
+
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+
+
+    setInterval(function () {
+        XofSin++;
+        YofSin = Math.sin(XofSin*Math.PI/180);
+        // ctx.clearRect(x+XofSin-cubeSize/3,y+YofSin*scale-cubeSize/3, cubeSize, cubeSize);
+            ctx.clearRect(x+XofSin,y+YofSin*scale, cubeSize*2, cubeSize*2);
+
+        drawFigure(x+XofSin, y+YofSin*scale);
+        ctx.clearRect(x+XofSin,y+YofSin*scale*1.5, cubeSize, cubeSize);
+        drawFigure(x+XofSin, y+YofSin*scale*1.5);
+
+    }, 70)
+
+    // setInterval(function () {
+    //     ctx.clearRect(x+XofSin,y+YofSin, 1000, 1000);
+    //     YofSin = Math.sin(XofSin*Math.PI/180);
+    //     drawFigure(x+XofSin, y+YofSin*scale);
+    //     XofSin++;
+    // }, 40)
+
+
+</script>
 </body>
 </html>
+
+<!--
+<html>
+<body>
+
+<canvas width="1000" height="1000" id="lab01"></canvas>
+
+<script>
+    var canvas = document.getElementById('lab01');
+    var ctx = canvas.getContext('2d');
+
+
+    var j = 0;
+
+    setInterval(function () {
+        ctx.fillStyle = '#ff00ff';
+        // ctx.clearRect(0,0,canvas.width, canvas.height);
+        var diagonal = 70;
+        var startXY = 30;
+        var cubeSize = 50;
+        var curX = startXY, curY1 = startXY, curY2 = startXY + cubeSize;
+
+        // for (let i=0;i<diagonal;i++) {
+        while (curY1 !== startXY + cubeSize && curY2 !== startXY) {
+            ctx.fillRect(curX, curY1, 1, 1);
+            ctx.fillRect(curX, curY2, 1, 1);
+            ctx.fillRec(curX, startXY, 1, 1);
+            ctc.fillRect(curX, startXY + cubeSize, 1, 1);
+            ctx.fillRect(startXY, curY1, 1, 1);
+            ctx.fillRect(startXY + cubeSize, curY1, 1, 1);
+            curY1++;
+            curY2--;
+            curX++;
+        },500  );
+    }
+</script>
+</body>
+</html>
+-->
