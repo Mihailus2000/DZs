@@ -1,0 +1,105 @@
+<HTML>
+<BODY>
+<canvas width="1000" height="1000" id="lab3">
+</canvas>
+
+<script>
+
+    function sleep(milliseconds) {
+        const date = Date.now();
+        let currentDate = null;
+        do {
+            currentDate = Date.now();
+        } while (currentDate - date < milliseconds);
+    }
+
+    function sleep2(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    let pointIndex = 0;
+
+
+    let canvas = document.getElementById("lab3");
+    let ctx = canvas.getContext('2d');
+    // ctx.fillStyle = "#989f98";
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+    let x0;
+    let y0 ;
+    let x1;
+    let y1;
+
+
+    canvas.addEventListener('click', function (e) {
+        if (pointIndex == 0) {
+            x0 = e.offsetX;
+            y0 = e.offsetY;
+            pointIndex = 1;
+        }
+        else {
+            x1 = e.offsetX;
+            y1 = e.offsetY;
+            ctx.fillStyle = "#00FF00";
+            ctx.fillRect(x0,y0,5,5);
+            ctx.fillStyle = "#ff0000";
+            ctx.fillRect(x1,y1,5,5);
+            line(ctx, x0, y0, x1, y1);
+            pointIndex = 0;
+        }
+    });
+
+    function line(ctx, x0, y0, x1, y1) {
+        const dX = (x1 - x0 >= 0 ? 1 : -1);
+        const dY = (y1 - y0 >= 0 ? 1 : -1);
+
+        const absDeltaX = Math.abs(x1 - x0);
+        const absDeltaY = Math.abs(y1 - y0);
+
+        let length = Math.max(absDeltaX, absDeltaY) + 1;
+
+        let accretion = 0;
+
+        if (length === 0) {
+            ctx.fillRect(x0, y0, 1, 1);
+            ctx.fillRect(x1, y1, 1, 1);
+        }
+        if (absDeltaY <= absDeltaX) {
+            let x = x0;
+            let y = y0;
+            let cnt = 0;
+            while (length--) {
+                if (cnt === 0) {
+                    ctx.fillStyle = "#0038ff";
+                    ctx.fillRect(x, Math.round(y), 3, 3);
+                    cnt++;
+                    ctx.fillStyle = "#c8b400";
+                }
+                ctx.fillRect(x, Math.round(y), 1, 1);
+                x += dX;
+                y += dY * Math.fround(absDeltaY) / absDeltaX;
+                // sleep2(1000);
+            }
+        } else {
+            let x = x0;
+            let y = y0;
+            let cnt = 0;
+            while (length--) {
+                if (cnt === 0) {
+                    ctx.fillStyle = "#00ffb7";
+                    ctx.fillRect(Math.round(x), y, 3, 3);
+                    cnt++
+                    ctx.fillStyle = "#c953e5";
+                }
+                ctx.fillRect(Math.round(x), y, 1, 1);
+                x += dX * Math.fround(absDeltaX) / absDeltaY;
+                y += dY;
+            }
+        }
+    }
+
+
+
+
+</script>
+</BODY>
+</HTML>
