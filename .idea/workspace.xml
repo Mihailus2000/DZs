@@ -3,12 +3,15 @@
   <component name="ChangeListManager">
     <list default="true" id="53c9a871-09cc-4f84-9ae1-cab65ac729db" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DZ1.html" beforeDir="false" afterPath="$PROJECT_DIR$/DZ1.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DZ3.html" beforeDir="false" afterPath="$PROJECT_DIR$/DZ3.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExportToHTMLSettings">
+    <option name="OUTPUT_DIRECTORY" value="$PROJECT_DIR$/../DZs\exportToHTML" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -16,6 +19,9 @@
         <option value="HTML File" />
       </list>
     </option>
+  </component>
+  <component name="Git.Pull.Settings">
+    <option name="BRANCH" value="firstVariant" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -53,6 +59,7 @@
       <workItem from="1601310965044" duration="1372000" />
       <workItem from="1601312400455" duration="1306000" />
       <workItem from="1601723852472" duration="11226000" />
+      <workItem from="1602076339874" duration="3479000" />
     </task>
     <servers />
   </component>
@@ -64,7 +71,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="firstVariant" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
