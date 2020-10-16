@@ -1,0 +1,73 @@
+<HTML>
+
+<BODY>
+
+<canvas width="1000" height="1000" id="can1">
+</canvas>
+
+<script>
+
+
+    var canvas = document.getElementById("can1");
+    var ctx = canvas.getContext('2d');
+
+    ctx.clearRect(0, 0, 1000, 1000);
+
+    let img = new Image;
+    img.src = "img.jpg"; // Change your file NAME if you want
+
+
+
+    img.onload = function grayScaling () {
+        ctx.drawImage(img, 100, 100);
+        var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        for (var i = 0; i < imgData.data.length; i += 4) {
+            let gray = (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2]) / 3;
+            imgData.data[i] = gray;
+            imgData.data[i + 1] = gray;
+            imgData.data[i + 2] = gray;
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+    }
+
+
+
+    img.onload = function sobelFiltering () {
+        ctx.drawImage(img, 0, 0);
+        var imgData = ctx.getImageData(50, 50, img.width, img.height);
+
+        for (let i = 0; i < img.width; i++) {
+            for(let j = 0; j < img.height; j++) {
+                for(let ch = 0; ch < 3; ch ++) {
+                    let count = 0;
+                    var a11;
+                    if(i-1 > 0 && j-1 > 0) {
+                        a11 = imgData.data[4 * (i - 1) * (j - 1) + ch];
+                        count++;
+                    }
+                    a12 = imgData.data[4 * i * (j-1) + ch];
+                    a13 = imgData.data[4 * (i + 1) * (j-1) + ch];
+                    a21 = imgData.data[4 * (i-1) * j + ch];
+                    a22 = imgData.data[4 * i * j + ch];
+                    a23 = imgData.data[4 * (i+1) * j + ch];
+                    a31 = imgData.data[4 * (i-1) * (j+1) + ch];
+                    a32 = imgData.data[4 * i * (j+1) + ch];
+                    a33 = imgData.data[4 * (i+1) * (j+1) + ch];
+                }
+            }
+        }
+
+        for (var i = 0; i < imgData.data.length; i += 4) {
+            let gray = (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2]) / 3;
+            imgData.data[i] = gray;
+            imgData.data[i + 1] = gray;
+            imgData.data[i + 2] = gray;
+        }
+
+    }
+
+</script>
+</BODY>
+</HTML>
