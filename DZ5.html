@@ -129,8 +129,12 @@
         constructor(x, y) {
             this.x = x;
             this.y = y;
+            console.log('construct:',x,y);
         }
-
+        drawDot() {
+            console.log('draw:',this.x,this.y);
+            ctx.fillRect(this.x,this.y,2,2);
+        }
         x = 0;
         y = 0;
     }
@@ -139,13 +143,15 @@
     let drawLine = false;
 
     function intersect(ctx, ax, ay, bx, by, xp1, yp1, xp2, yp2) {
-        let t = (ay - yp1) * (xp2 - xp1) - (ax - xp1) * (yp2 - yp1) / ((bx - ax) * (yp2 - yp1) - (by - ay) * (xp2 - xp1));
+        let t = ((ay - yp1) * (xp2 - xp1) - (ax - xp1) * (yp2 - yp1)) / ((bx - ax) * (yp2 - yp1) - (by - ay) * (xp2 - xp1));
 
-        let prod = (bx - ax) * (yp2 - yp1) - (by - ay) * (xp2 - xp1);
+        let prod = - (bx - ax) * (yp2 - yp1) + (by - ay) * (xp2 - xp1);
         let dir = 1;
         if (prod < 0)
             dir = -1;
-        ctx.fillStyle = "#FF0000";
+        // ctx.fillStyle = "#FF0000";
+        console.log('t = ', t);
+        console.log('prod = ', prod);
         return {t, dir};
     }
 
@@ -166,11 +172,11 @@
         let y = y0;
         if (absDeltaY <= absDeltaX) {
             let cnt = 0;
-            while (length--) {
+            while (length-- > 0) {
                 error += 2 /** dY*/ * absDeltaY;
                 if (cnt === 0) {
-                    ctx.fillStyle = "#1c0496";
-                    ctx.fillRect(x, y, 3, 3);
+                    // ctx.fillStyle = "#1c0496";
+                    // ctx.fillRect(x, y, 3, 3);
                     cnt++
                     ctx.fillStyle = "#c8b400";
                     continue;
@@ -185,11 +191,11 @@
 
         } else {
             let cnt = 0;
-            while (length--) {
+            while (length-- > 0) {
                 error += 2 * absDeltaX;
                 if (cnt === 0) {
-                    ctx.fillStyle = "#ff0098";
-                    ctx.fillRect(x, y, 3, 3);
+                    // ctx.fillStyle = "#ff0098";
+                    // ctx.fillRect(x, y, 3, 3);
                     cnt++
                     ctx.fillStyle = "#c953e5";
                     continue;
@@ -210,20 +216,81 @@
     canvas.addEventListener('click', function (e) {
         if (!draw) {
             let newPoint = new Point(e.offsetX, e.offsetY);
+            newPoint.drawDot();
             points.push(newPoint);
             console.dir(newPoint);
         }
-        if(drawLine) {
+        if (drawLine) {
             let newPoint = new Point(e.offsetX, e.offsetY);
+            // newPoint.drawDot();
             mainPoints.push(newPoint);
             console.dir(newPoint);
             pointIndex++;
-            if(pointIndex === 2) {
+            if (pointIndex === 2) {
+                console.log('DRAW DOTS OF INTERSECTIONS');
                 let N = points.length;
+                let positive = [];
+                let negative = [];
+                let xm1 = mainPoints[0].x;
+                let ym1 = mainPoints[0].y;
+                let xm2 = mainPoints[1].x;
+                let ym2 = mainPoints[1].y;
                 for (let i = 0; i < N; i++) {
                     // if(i!=(N-1))
-                    res = intersect(ctx, mainPoints[0].x,mainPoints[0].y,mainPoints[1].x,mainPoints[1].y,
+
+                    let x11 = points[i].x;
+                    let y11 = points[i].y;
+                    let x22 = points[(i + 1) % (points.length)].x;
+                    let y22 = points[(i + 1) % (points.length)].y;
+                    let res = intersect(ctx, xm1, ym1, xm2, ym2, x11, y11, x22, y22);
+                    let tx = res.t * (xm2-xm1) + xm1;
+                    let ty = res.t * (ym2-ym1) + ym1;
+
+                    if(res.dir === -1)
+                        negative.push(res.t);
+                    else
+                        positive.push(res.t);
+                    console.log('T',res.t,'tx',tx,'ty',ty);
+                    /*ctx.fillStyle = '#0029ff';
+                    ctx.fillRect(tx,ty,6,6);
+                    ctx.fillStyle = '#000000';*/
                 }
+                console.dir(positive);
+                console.dir(negative);
+                positive.push(0);
+                negative.push(1);
+                let start = positive.sort(function (a, b) {
+                    return b-a;
+                })[0];
+                let end = negative.sort(function (a, b) {
+                    return a-b;
+                })[0];
+
+                if(0 < start && start < end && end < 1) {
+                    console.log('FIRST VARIANT');
+                    line(ctx,start*(xm2-xm1)+xm1,start*(ym2-ym1)+ym1,end*(xm2-xm1)+xm1,end*(ym2-ym1)+ym1);
+                }
+                if(0 <= start && start <= end && end <= 1) {
+                    console.log('SECOND_1 VARIANT');
+                    if(start === 0) {
+                        line(ctx,mainPoints[0].x,mainPoints[0].y,end*(xm2-xm1)+xm1,end*(ym2-ym1)+ym1);
+                    }
+                    if(end === 1) {
+                        console.log('SECOND_2 VARIANT');
+                        line(ctx,start*(xm2-xm1)+xm1,start*(ym2-ym1)+ym1,mainPoints[1].x,mainPoints[1].y);
+                    }
+                }
+                if(end < start) {
+                    console.log('THIRD VARIANT');
+                    line(ctx,mainPoints[0].x,mainPoints[0].y,mainPoints[1].x,mainPoints[1].y);
+                }
+                console.dir(positive);
+                console.dir(negative);
+                console.log('start_t',start,'end_t',end);
+
+                pointIndex = 0;
+                mainPoints = [];
+            }
         }
         /*
         if (pointIndex === 0) {
@@ -241,6 +308,7 @@
             pointIndex = 0;
         }*/
     });
+
 
     canvas.addEventListener('contextmenu', function (e) {
         if (!draw) {
