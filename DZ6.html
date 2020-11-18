@@ -1,0 +1,208 @@
+<HTML>
+<BODY>
+
+<canvas width="1000" height="1000" id="cnv1"></canvas>
+
+<script>
+    let canvas = document.getElementById("cnv1");
+    let ctx = canvas.getContext('2d');
+    let drawLine = false;
+    let points = [];
+    class Point {
+
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            console.log('construct:',x,y);
+        }
+        drawDot() {
+            console.log('draw:',this.x,this.y);
+            ctx.fillRect(this.x,this.y,2,2);
+        }
+        x = 0;
+        y = 0;
+    }
+
+    function intersect(ctx, ax, ay, bx, by, xp1, yp1, xp2, yp2) {
+        let t = ((ay - yp1) * (xp2 - xp1) - (ax - xp1) * (yp2 - yp1)) / ((bx - ax) * (yp2 - yp1) - (by - ay) * (xp2 - xp1));
+
+        let prod = - (bx - ax) * (yp2 - yp1) + (by - ay) * (xp2 - xp1);
+        let dir = 1;
+        if (prod < 0)
+            dir = -1;
+        return {t, dir};
+    }
+
+    function line(ctx, x0, y0, x1, y1) {
+        const dX = (x1 - x0 >= 0 ? 1 : -1);
+        const dY = (y1 - y0 >= 0 ? 1 : -1);
+
+        const absDeltaX = Math.abs(x1 - x0);
+        const absDeltaY = Math.abs(y1 - y0);
+
+        let length = Math.max(absDeltaX, absDeltaY) + 1;
+
+        let error = 0;
+        if (length === 0) {
+            ctx.fillRect(x0, y0, 1, 1);
+        }
+        let x = x0;
+        let y = y0;
+        if (absDeltaY <= absDeltaX) {
+            let cnt = 0;
+            while (length-- > 0) {
+                error += 2 * absDeltaY;
+                if (cnt === 0) {
+                    cnt++
+                    ctx.fillStyle = boundColor;
+                    continue;
+                }
+                if (error >= absDeltaX) {
+                    y += dY
+                    error -= 2 * absDeltaX;
+                }
+                x += dX;
+                ctx.fillRect(x, y, 1, 1);
+            }
+
+        } else {
+            let cnt = 0;
+            while (length-- > 0) {
+                error += 2 * absDeltaX;
+                if (cnt === 0) {
+                    cnt++
+                    ctx.fillStyle = boundColor;
+                    continue;
+                }
+                if (error >= absDeltaY) {
+                    x += dX
+                    error -= 2 * absDeltaY;
+                }
+                y += dY;
+                ctx.fillRect(x, y, 1, 1);
+            }
+        }
+    }
+
+    canvas.addEventListener('click', function (e) {
+        if (!drawLine) {
+            ctx.fillStyle = boundColor;
+            let newPoint = new Point(e.offsetX, e.offsetY);
+            newPoint.drawDot();
+            points.push(newPoint);
+        }
+    });
+
+    canvas.addEventListener('contextmenu', function (e) {
+        if (!drawLine) {
+            drawLine = true;
+            for (let i = 0; i < points.length; i++) {
+                let x11 = points[i].x;
+                let y11 = points[i].y;
+                let x22 = points[(i + 1) % (points.length)].x;
+                let y22 = points[(i + 1) % (points.length)].y;
+                console.log(x11, y11, x22, y22);
+                line(ctx, x11, y11, x22, y22);
+            }
+            fill = true;
+            points = [];
+        }
+    });
+
+
+</script>
+
+<script>
+    let fill = false;
+    let startPoint;
+    let fillColor = "#36bc20";
+    let fillColorArr = new Uint8ClampedArray([54,188,32,255]);
+    let boundColor = "#000000";
+    let boundColorArr = new Uint8ClampedArray([0,0,0,255]);
+
+    class Pixel {
+        constructor(x,y) {
+            this.x_ = x;
+            this.y_ = y;
+        }
+        x_ = 0;
+        y_ = 0;
+    }
+
+    function arrEquals(arr1,arr2){
+        if(!arr1 || !arr2){
+            return false;
+        }
+
+        if(arr1.length !== arr2.length){
+            return false;
+        }
+
+        for (var ind = 0; ind < arr1.length; ++ind) {
+            if(arr1[ind] !== arr2[ind])
+                return false;
+        }
+        return true;
+    }
+
+    function filling(startPixel){
+        // console.log("X0_ = ",startPixel.x_," Y0_ = ",startPixel.y_);
+        let stack = [];
+        let curColor = [];
+        stack.push(startPixel);
+        ctx.fillStyle = fillColor;
+        while (stack.length > 0) {
+            var lambda = (curColor,boundColorArr, fillColorArr, x,y, stack) => {
+                if(curColor !== boundColorArr && curColor !== fillColorArr) {
+                    stack.push(new Pixel(x, y));
+                }
+            }
+
+            let pix = stack.pop();
+            // console.dir(pix);
+            // console.log("X_ = ",pix.x_," Y_ = ",pix.y_);
+
+            curColor = ctx.getImageData(pix.x_, pix.y_, 1, 1).data;
+            // console.dir(curColor);
+
+            if(!arrEquals(curColor,boundColorArr) && !arrEquals(curColor,fillColorArr)) {
+                ctx.fillRect(pix.x_, pix.y_, 1, 1);
+
+                curColor = ctx.getImageData(pix.x_-1, pix.y_, 1, 1).data;
+                lambda(curColor,boundColorArr,fillColorArr,pix.x_-1, pix.y_,stack);
+                curColor = ctx.getImageData(pix.x_, pix.y_-1, 1, 1).data;
+                lambda(curColor,boundColorArr,fillColorArr,pix.x_, pix.y_-1,stack);
+                curColor = ctx.getImageData(pix.x_+1, pix.y_, 1, 1).data;
+                lambda(curColor,boundColorArr,fillColorArr,pix.x_+1, pix.y_,stack);
+                curColor = ctx.getImageData(pix.x_, pix.y_+1, 1, 1).data;
+                lambda(curColor,boundColorArr,fillColorArr,pix.x_, pix.y_+1,stack);
+            }
+
+        }
+
+    }
+
+    canvas.addEventListener('click', function (ev) {
+        if(fill) {
+            let x0 = ev.offsetX.valueOf();
+            let y0 = ev.offsetY.valueOf();
+            startPoint = new Pixel(x0, y0);
+        }
+    });
+
+    document.addEventListener('keydown',function (event) {
+        if(fill) {
+            const keyName = event.key;
+            if (keyName === 'Enter') {
+                filling(startPoint);
+                // startPoint = null;
+                fill = false;
+                drawLine = false;
+            }
+        }
+    });
+
+</script>
+
+</BODY>
+</HTML>
