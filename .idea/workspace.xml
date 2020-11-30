@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="53c9a871-09cc-4f84-9ae1-cab65ac729db" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DZ5.html" beforeDir="false" afterPath="$PROJECT_DIR$/DZ5.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,8 +19,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="HTML File" />
         <option value="JavaScript File" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -63,7 +67,13 @@
       <workItem from="1601723852472" duration="11226000" />
       <workItem from="1602076339874" duration="17739000" />
       <workItem from="1602860644470" duration="303000" />
-      <workItem from="1605699905387" duration="19627000" />
+      <workItem from="1605699905387" duration="21536000" />
+      <workItem from="1605780958148" duration="3228000" />
+      <workItem from="1606399064376" duration="3194000" />
+      <workItem from="1606505614536" duration="18998000" />
+      <workItem from="1606555827270" duration="44022000" />
+      <workItem from="1606653008574" duration="36822000" />
+      <workItem from="1606733112091" duration="27129000" />
     </task>
     <servers />
   </component>
@@ -81,7 +91,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="origin/master" />
+                        <option value="origin/firstVariant" />
                       </list>
                     </value>
                   </entry>
@@ -93,5 +103,17 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/DZ7.html</url>
+          <line>89</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
