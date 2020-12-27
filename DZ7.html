@@ -268,98 +268,133 @@
 
                     if (amount_of_coord > 1) {
                         for (var ind = 0; ind < amount_of_coord;) {
-                            var is_vertex = false;
-                            var is_special_vertex = false;
-                            var is_first_special_vertex = false;
-                            var start_pix = cur_y_cord[ind];
-                            if(ind ===  amount_of_coord-1) { // TODO
-                                if(is_pix_vertex(start_pix)) {
-                                    is_vertex = true;
-                                    is_special_vertex = check_to_special_vertex(start_pix);
-                                }
-                                norm_array.push([start_pix.x_,start_pix.x_]);
-                                if(is_special_vertex)
-                                    norm_array.push([start_pix.x_,start_pix.x_]);
+                            var st_pix = cur_y_cord[ind];
+                            norm_array.push(st_pix)
+                            if(is_pix_vertex(st_pix))
+                                if(check_to_special_vertex(st_pix))
+                                    norm_array.push(st_pix)
+                            if (ind === amount_of_coord - 1) {
+                                // todo
+                                // ++ind
                                 break;
-                            }
-                            if(is_pix_vertex(start_pix)) {
-                                is_vertex = true;
-                                if(ind > 0) {
-                                    if(start_pix.x_ - cur_y_cord[ind-1].x_ > 1) {
-                                        is_first_special_vertex = check_to_special_vertex(start_pix);
-                                    }
-                                    else{
-                                        is_first_special_vertex = !check_to_special_vertex(start_pix);
-                                    }
-                                }
-                                else{
-                                    is_first_special_vertex = check_to_special_vertex(start_pix);
-                                }
                             }
                             ++ind;
                             var pix = cur_y_cord[ind];
-
-                            var changed = false;
-                            var last = false;
                             var dist = 1;
-                            while(from_same_line(pix,start_pix,dist)) {
-                                if(is_pix_vertex(pix)) {
-                                    is_vertex = true;
-                                    is_special_vertex = check_to_special_vertex(pix);
+                            while (pix.x_ - st_pix.x_ <= dist) {
+                                if (is_pix_vertex(pix)) {
+                                    norm_array.pop()
+                                    norm_array.push(pix);
+                                    if (check_to_special_vertex(pix)) {
+                                        norm_array.push(pix);
+                                    }
                                 }
-                                if(ind === amount_of_coord-1) {
-                                    last = true;
+                                if (ind === amount_of_coord - 1) {
+                                    // todo
+                                    ++ind
                                     break;
                                 }
-                                ++ind;
                                 ++dist;
-                                changed = true;
+                                ++ind;
                                 pix = cur_y_cord[ind];
                             }
-                            var end_pix;
-                            if(last) {
-                                end_pix = pix;
-                                norm_array.push([start_pix.x_,end_pix.x_]);
-                                if(is_special_vertex || is_first_special_vertex) {
-                                    norm_array.push([start_pix.x_, end_pix.x_]);
-                                }
-                                break;
-                            }
 
-                            if(pix.x_ - cur_y_cord[ind-1].x_ <= 1) { //TODO If 0?
-                                if(is_vertex) {
-                                    if (is_special_vertex || is_first_special_vertex) {
-                                        is_first_special_vertex = false;
-                                        is_special_vertex = false;
-                                    }
-                                    else {
-                                        is_special_vertex = true;
-                                    }
-                                }
-                            }
 
-                            /*if(changed)
-                                 end_pix = cur_y_cord[ind-1];
-                            else {
-                                end_pix = cur_y_cord[ind];
-                                ++ind;
-                            }*/
-
-                            end_pix = cur_y_cord[ind-1];
-                            norm_array.push([start_pix.x_,end_pix.x_]);
-                            if(is_special_vertex || is_first_special_vertex) {
-                                norm_array.push([start_pix.x_, end_pix.x_]);
-                            }
+                            //
+                            //     var is_vertex = false;
+                            //     var is_special_vertex = false;
+                            //     var is_first_special_vertex = false;
+                            //     var start_pix = cur_y_cord[ind];
+                            //     if(ind ===  amount_of_coord-1) { // TODO
+                            //         if(is_pix_vertex(start_pix)) {
+                            //             is_vertex = true;
+                            //             is_special_vertex = check_to_special_vertex(start_pix);
+                            //         }
+                            //         norm_array.push([start_pix.x_,start_pix.x_]);
+                            //         if(is_special_vertex)
+                            //             norm_array.push([start_pix.x_,start_pix.x_]);
+                            //         break;
+                            //     }
+                            //     if(is_pix_vertex(start_pix)) {
+                            //         is_vertex = true;
+                            //         if(ind > 0) {
+                            //             if(start_pix.x_ - cur_y_cord[ind-1].x_ > 1) {
+                            //                 is_first_special_vertex = check_to_special_vertex(start_pix);
+                            //             }
+                            //             else{
+                            //                 is_first_special_vertex = !check_to_special_vertex(start_pix);
+                            //             }
+                            //         }
+                            //         else{
+                            //             is_first_special_vertex = check_to_special_vertex(start_pix);
+                            //         }
+                            //     }
+                            //     ++ind;
+                            //     // var pix = cur_y_cord[ind];
+                            //
+                            //     var changed = false;
+                            //     var last = false;
+                            //     var dist = 1;
+                            //     while(from_same_line(pix,start_pix,dist)) {
+                            //         if(is_pix_vertex(pix)) {
+                            //             is_vertex = true;
+                            //             is_special_vertex = check_to_special_vertex(pix);
+                            //         }
+                            //         if(ind === amount_of_coord-1) {
+                            //             last = true;
+                            //             break;
+                            //         }
+                            //         ++ind;
+                            //         ++dist;
+                            //         changed = true;
+                            //         pix = cur_y_cord[ind];
+                            //     }
+                            //     var end_pix;
+                            //     if(last) {
+                            //         end_pix = pix;
+                            //         norm_array.push([start_pix.x_,end_pix.x_]);
+                            //         if(is_special_vertex || is_first_special_vertex) {
+                            //             norm_array.push([start_pix.x_, end_pix.x_]);
+                            //         }
+                            //         break;
+                            //     }
+                            //
+                            //     if(pix.x_ - cur_y_cord[ind-1].x_ <= 1) { //TODO If 0?
+                            //         if(is_vertex) {
+                            //             if (is_special_vertex || is_first_special_vertex) {
+                            //                 is_first_special_vertex = false;
+                            //                 is_special_vertex = false;
+                            //             }
+                            //             else {
+                            //                 is_special_vertex = true;
+                            //             }
+                            //         }
+                            //     }
+                            //
+                            //     /*if(changed)
+                            //          end_pix = cur_y_cord[ind-1];
+                            //     else {
+                            //         end_pix = cur_y_cord[ind];
+                            //         ++ind;
+                            //     }*/
+                            //
+                            //     end_pix = cur_y_cord[ind-1];
+                            //     norm_array.push([start_pix.x_,end_pix.x_]);
+                            //     if(is_special_vertex || is_first_special_vertex) {
+                            //         norm_array.push([start_pix.x_, end_pix.x_]);
+                            //     }
+                            // }
                         }
                     }
                     //console.log(" ");
-                    console.dir(norm_array);
                     //console.log(" ");
+                    if(norm_array.length % 2 !== 0)
+                        console.dir(norm_array);
                     for(ind = 0; ind <= norm_array.length-2;ind+=2) {
-                        var start = norm_array[ind];
-                        var end = norm_array[ind+1];
-                        if(end[0]-start[1] > 1) {
-                            this.#canvas.drawLine(start[1]+1, cur_y, end[0], cur_y);
+                        var start = norm_array[ind].x_;
+                        var end = norm_array[ind+1].x_;
+                        if(end-start > 1) {
+                            this.#canvas.drawLine(start+1, cur_y, end, cur_y);
                         }
                     }
                     /*for (let j = 0; j < amount_of_coord - 1;++j) {

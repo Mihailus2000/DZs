@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="53c9a871-09cc-4f84-9ae1-cab65ac729db" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DZ7.html" beforeDir="false" afterPath="$PROJECT_DIR$/DZ7.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,7 +75,8 @@
       <workItem from="1606653008574" duration="36822000" />
       <workItem from="1606733112091" duration="27601000" />
       <workItem from="1607375064587" duration="1348000" />
-      <workItem from="1608986755928" duration="18976000" />
+      <workItem from="1608986755928" duration="19265000" />
+      <workItem from="1609076699443" duration="10091000" />
     </task>
     <servers />
   </component>
@@ -92,7 +94,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="origin/firstVariant" />
+                        <option value="lab_07_second_var" />
                       </list>
                     </value>
                   </entry>
