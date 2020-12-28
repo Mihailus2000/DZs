@@ -5,15 +5,38 @@
     <title>Title</title>
 </head>
 <body style="margin: 0;">
-    <p>Choose .obj file with faces as three points by space. No triangles with form: "f d/d/d d/d/d d/d/d"!  Only "f d  d  d"
+    <p>Choose .obj file with faces as three points by space. No poligons with form, sorry: "f d/d/d d/d/d d/d/d"!  Only "f d  d  d"
     For example, teapot.obj works correct!</p>
-    <input type="file"> <br>
+    <p><input type="file"></p>
+    Set scale of object. Default = 1
+    <p>Set scale: <select name="obj_scale" id="scale_list" onchange="setScale(this)">
+
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="30">30</option>
+        <option value="40">40</option>
+        <option value="50">50</option>
+        <option value="50">60</option>
+
+    </select></p>
+    <p><button id="clrSceneBtn" onclick="clearScene()">Clear scene</button> </p>
+    <br>
 
     <canvas id="canv1" style="display: block">Your browser doesn't support canvas!</canvas>
 
 <script>
     var canv = document.getElementById("canv1")
     var ctx = canv.getContext('2d')
+    var obj_list = document.getElementById("scale_list")
     canv.width = window.innerWidth
     canv.height = window.innerHeight
 
@@ -21,7 +44,7 @@
 
     var x_shift = canv.width / 2
     var y_shift = canv.height / 2
-    var scale = 5
+    var objScale = 1
 
 
     var surfs = []
@@ -83,6 +106,10 @@
     }
 
     function drawObject() {
+        ctx.fillStyle = "red"
+        ctx.arc(x_shift,y_shift,5,0,Math.PI * 2)
+        ctx.fill()
+        ctx.fillStyle = "black"
         surfs.forEach(surf => {
             var size = surf.length
             for(var vtx_ind = 0; vtx_ind < size; ++vtx_ind) {
@@ -97,10 +124,10 @@
                     console.dir(surf)
                     continue
                 }
-                var x0 = scale * line_start[0]+x_shift
-                var y0 = y_shift - scale * line_start[1]
-                var x1 = scale * line_end[0]+x_shift
-                var y1 = y_shift - scale * line_end[1]
+                var x0 = objScale * line_start[0]+x_shift
+                var y0 = y_shift - objScale * line_start[1]
+                var x1 = objScale * line_end[0]+x_shift
+                var y1 = y_shift - objScale * line_end[1]
 
                 drawLine(x0,y0,x1,y1);
             }
@@ -108,16 +135,16 @@
     }
 
     const input = document.querySelector('input[type="file"]')
-
+    // var ree = /\s+/
+    // alert("The latest     airplane designs abc abcbabc evolved from slabcraft.".split(ree))
     input.addEventListener('change', function (e) {
         const reader = new FileReader()
         reader.onload = function () {
             const lines = reader.result.split('\n')
 
             for(var line_ind = 0; line_ind < lines.length;++line_ind) {
-                var params = lines[line_ind].split(" ");
-                if(params.length !== 4)
-                    params = lines[line_ind].split("  ");
+                var re = /\s+/
+                var params = lines[line_ind].split(re);
 
                 if(params[0] === "v") {
                     vertices.push([parseFloat(params[1]),parseFloat(params[2]),parseFloat(params[3])])
@@ -141,8 +168,14 @@
 
     }, false)
 
+    function setScale(scale) {
+        objScale = parseFloat(scale.value);
+        alert("successful changed scale to : "+objScale)
+    }
 
-
+    function clearScene() {
+        ctx.clearRect(1,1,canv.width-2,canv.height-2)
+    }
 
     // var vertices = [
     //         [40.6266,28.3457,-1.10804],
@@ -1702,10 +1735,7 @@
     //     [470,469,529],
     //     [529,530,470]
     // ]
-    ctx.fillStyle = "red"
-    ctx.arc(x_shift,y_shift,15,0,Math.PI * 2)
-    ctx.fill()
-    ctx.fillStyle = "black"
+
 
 
 
