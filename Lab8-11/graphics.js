@@ -1,0 +1,467 @@
+
+ctx.strokeRect(0,0,canvas.offsetWidth,canvas.offsetHeight);
+
+
+class Vertex {
+
+    constructor(x, y, min_x = 0, min_y = 0, max_x = 0, max_y = 0) {
+        this.x_ = x;
+        this.y_ = y;
+        this.max_x_of_edge = max_x;
+        this.max_y_of_edge = max_y;
+        this.min_x_of_edge = min_x;
+        this.min_y_of_edge = min_y;
+    }
+    x_ = 0;
+    y_ = 0;
+
+    /*Принадлежность к конкретной грани*/
+    max_x_of_edge = 0;
+    min_x_of_edge = 0;
+
+    max_y_of_edge = 0;
+    min_y_of_edge = 0;
+}
+
+class Canvas {
+    context;
+    fillColor = "#36bc20";
+    boundColor = "#000000";
+    boundColorArr = new Uint8ClampedArray([0,0,0,255]);
+
+    #curColor
+    // #width;
+    // #height;
+    States = Object.freeze({"wait" : 0,"drawRect" : 1, "fillPoly" : 2})
+    curr_state = this.States.drawRect;
+    #polygons = []
+
+    constructor(context, width, height) {
+        this.context = context;
+
+
+    }
+
+    intersect(ctx, ax, ay, bx, by, xp1, yp1, xp2, yp2) {
+        let t = ((ay - yp1) * (xp2 - xp1) - (ax - xp1) * (yp2 - yp1)) / ((bx - ax) * (yp2 - yp1) - (by - ay) * (xp2 - xp1));
+
+        let prod = - (bx - ax) * (yp2 - yp1) + (by - ay) * (xp2 - xp1);
+        let dir = 1;
+        if (prod < 0)
+            dir = -1;
+        return {t, dir};
+    }
+    setColor(color) {
+        this.context.fillStyle = color;
+    }
+
+    // getLastPoly() {
+    //     if(this.#polygons.length > 0)
+    //         return this.#polygons[this.#polygons.length-1];
+    //     else {
+    //         let new_poly = new Polygon(canvas_class);
+    //         this.#polygons.push(new_poly);
+    //         return new_poly;
+    //     }
+    // }
+
+    drawLine(x0, y0, x1, y1) {
+        let line_dots = [];
+        const dX = (x1 - x0 >= 0 ? 1 : -1);
+        const dY = (y1 - y0 >= 0 ? 1 : -1);
+        const absDeltaX = Math.abs(x1 - x0);
+        const absDeltaY = Math.abs(y1 - y0);
+        let length = Math.max(absDeltaX, absDeltaY);
+        let error = 0;
+        if (length === 0) { // Never COME HERE
+            this.context.fillRect(x0, y0, 1, 1);
+            //console.log("draw ONCE",[x0,y0]);
+            line_dots.push(new Vertex(x0, y0, Math.min(x0, x1),Math.min(y0, y1),Math.max(x0, x1),Math.max(y0, y1)));
+            // line_dots.push(new Vertex(x, y, Math.min(x0, x1),Math.min(y0, y1),Math.max(x0, x1),Math.max(y0, y1)));
+            return line_dots;
+        }
+        let x = x0;
+        let y = y0;
+
+        if (absDeltaY <= absDeltaX) {
+            while (length-- > 0) {
+                error += 2 * absDeltaY;
+                this.context.fillRect(x, y, 1, 1);
+                //console.log("draw",[x,y]);
+                if(y0 !== y1) {
+                    // if (length > 1)
+                    line_dots.push(new Vertex(x, y, Math.min(x0, x1),Math.min(y0, y1),Math.max(x0, x1),Math.max(y0, y1)));
+                }
+                if (error >= absDeltaX) {
+                    y += dY
+                    error -= 2 * absDeltaX;
+                }
+                x += dX;
+            }
+
+        } else {
+            while (length-- > 0) {
+                error += 2 * absDeltaX;
+                this.context.fillRect(x, y, 1, 1);
+                //console.log("draw",[x,y]);
+                if(y0 !== y1) {
+                    // if (length > 1)
+                    line_dots.push(new Vertex(x, y, Math.min(x0, x1),Math.min(y0, y1),Math.max(x0, x1),Math.max(y0, y1)));
+                }
+                if (error >= absDeltaY) {
+                    x += dX
+                    error -= 2 * absDeltaY;
+                }
+                y += dY;
+
+            }
+        }
+        return line_dots;
+    }
+
+    floodFillAlgorithm(polygon) {
+        polygon.floodFillPoly();
+    }
+}
+
+class Polygon {
+    is_ready = false
+    start_vertex = new Vertex()
+    end_vertex = new Vertex()
+    #bound_pixels = []
+    #vertices = []
+    #canvas = new Canvas()
+    #arr_by_Y = []
+
+    constructor(canvas) {
+        this.#canvas = canvas;
+    }
+
+    addVertex(x,y) {
+        let new_vertex = new Vertex(x,y);
+        //console.log("NEW VERTEX",[x,y]);
+        let ver_cnt = this.#vertices.length
+        if(ver_cnt > 0) { // Already can be created line
+            let last_vertex = this.#vertices[ver_cnt-1];
+            let array_of_vert = this.#canvas.drawLine(last_vertex.x_,last_vertex.y_,x,y);
+            console.dir(array_of_vert);
+            array_of_vert.forEach((elem) => {this.#bound_pixels.push(elem)});
+            this.#vertices.push(new_vertex);
+        }
+        else
+            this.#vertices.push(new_vertex); // TODO May be not include
+    }
+
+    finishDraw() {
+        let last_vertex = this.#vertices[this.#vertices.length-1];
+        let first_vertex = this.#vertices[0];
+        let array_of_vert = this.#canvas.drawLine(last_vertex.x_,last_vertex.y_,first_vertex.x_,first_vertex.y_);
+        array_of_vert.forEach((elem) => {this.#bound_pixels.push(elem)});
+        console.dir(array_of_vert);
+        this.#canvas.curr_state = this.#canvas.States.fillPoly;
+    }
+
+    floodFillPoly() {
+        console.dir(this.#bound_pixels);
+        this.#bound_pixels.sort((a,b) => {
+            if(a.y_ < b.y_)
+                return -1;
+            if(b.y_ < a.y_)
+                return 1;
+            return 0;
+        });
+        console.dir(this.#bound_pixels);
+        this.#bound_pixels.sort((a,b) => {
+            if(a.y_ === b.y_) {
+                if (a.x_ <= b.x_)
+                    return -1;
+                else return 1;
+            }
+            return 0;
+        });
+        console.dir(this.#bound_pixels);
+
+        // this.#bound_pixels.forEach((elem) => {console.log(elem.x_,elem.y_)});
+        var arr_by_y_coord = this.#bound_pixels[0].y_;
+        var line_of_points_of_cur_Y = [];
+        // line_of_points_of_cur_Y.push()
+        for(var pixel of this.#bound_pixels) {
+            if(pixel.y_ === arr_by_y_coord)
+                line_of_points_of_cur_Y.push(pixel);
+            else{
+                this.#arr_by_Y.push(line_of_points_of_cur_Y);
+                line_of_points_of_cur_Y = [];
+                line_of_points_of_cur_Y.push(pixel);
+                arr_by_y_coord = pixel.y_;
+            }
+
+        }
+        console.dir(this.#arr_by_Y);
+
+        var from_same_line = (first,second,dist) => {
+            // return (first.min_x_of_edge === second.min_x_of_edge && first.max_x_of_edge === second.max_x_of_edge
+            //     && first.min_y_of_edge === second.min_y_of_edge && first.max_y_of_edge === second.max_y_of_edge);
+            if(Math.abs(second.x_ - first.x_) === dist) {
+                if ((first.min_x_of_edge === second.min_x_of_edge && first.max_x_of_edge === second.max_x_of_edge
+                    && first.min_y_of_edge === second.min_y_of_edge && first.max_y_of_edge === second.max_y_of_edge)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        var is_pix_vertex = (pix) => {
+            return (Math.min(Math.abs(pix.x_ - pix.min_x_of_edge), Math.abs(pix.x_ - pix.max_x_of_edge)) === 0
+                && Math.min(Math.abs(pix.y_ - pix.min_y_of_edge), Math.abs(pix.y_ - pix.max_y_of_edge)) === 0)
+        }
+
+        var check_to_special_vertex = (pixel) => { // special is vertex when it's edges all from the one side of "scan line"
+            var cur_vert_ind = this.#vertices.findIndex( (elem) => {return (elem.x_ === pixel.x_ && elem.y_ === pixel.y_)});
+            var previous_vertex_ind = (cur_vert_ind === 0) ? this.#vertices.length-1 : cur_vert_ind-1;
+            var next_vertex_ind = (cur_vert_ind + 1) % this.#vertices.length;
+            var previous_vertex = this.#vertices[previous_vertex_ind];
+            var next_vertex = this.#vertices[next_vertex_ind];
+
+            if(previous_vertex.y_ < pixel.y_ && next_vertex.y_ < pixel.y_
+                || previous_vertex.y_ > pixel.y_ && next_vertex.y_ > pixel.y_) {
+                return true;
+            }
+            return false;
+
+        }
+        for(var cur_y_cord of this.#arr_by_Y) {
+            // console.log("draw",cur_y_cord);
+            var cur_y = cur_y_cord[0].y_;
+            var amount_of_coord = cur_y_cord.length;
+            var indx = 0;
+            var last_x = cur_y_cord[0].x_;
+            indx = 1;
+            var num_of_point_in_line = 0;
+            var dots_num = 0;
+            var norm_array = [];
+            var categ_of_points = [];
+
+            if (amount_of_coord > 1) {
+                for (var ind = 0; ind < amount_of_coord;) {
+                    var is_vertex = false;
+                    var is_special_vertex = false;
+                    var is_first_special_vertex = false;
+                    var start_pix = cur_y_cord[ind];
+                    if(ind ===  amount_of_coord-1) { // TODO
+                        if(is_pix_vertex(start_pix)) {
+                            is_vertex = true;
+                            is_special_vertex = check_to_special_vertex(start_pix);
+                        }
+                        norm_array.push([start_pix.x_,start_pix.x_]);
+                        if(is_special_vertex)
+                            norm_array.push([start_pix.x_,start_pix.x_]);
+                        break;
+                    }
+                    if(is_pix_vertex(start_pix)) {
+                        is_vertex = true;
+                        if(ind > 0) {
+                            if(start_pix.x_ - cur_y_cord[ind-1].x_ > 1) {
+                                is_first_special_vertex = check_to_special_vertex(start_pix);
+                            }
+                            else{
+                                is_first_special_vertex = !check_to_special_vertex(start_pix);
+                            }
+                        }
+                        else{
+                            is_first_special_vertex = check_to_special_vertex(start_pix);
+                        }
+                    }
+                    ++ind;
+                    var pix = cur_y_cord[ind];
+
+                    var changed = false;
+                    var last = false;
+                    var dist = 1;
+                    while(from_same_line(pix,start_pix,dist)) {
+                        if(is_pix_vertex(pix)) {
+                            is_vertex = true;
+                            is_special_vertex = check_to_special_vertex(pix);
+                        }
+                        if(ind === amount_of_coord-1) {
+                            last = true;
+                            break;
+                        }
+                        ++ind;
+                        ++dist;
+                        changed = true;
+                        pix = cur_y_cord[ind];
+                    }
+                    var end_pix;
+                    if(last) {
+                        end_pix = pix;
+                        norm_array.push([start_pix.x_,end_pix.x_]);
+                        if(is_special_vertex || is_first_special_vertex) {
+                            norm_array.push([start_pix.x_, end_pix.x_]);
+                        }
+                        break;
+                    }
+
+                    if(pix.x_ - cur_y_cord[ind-1].x_ <= 1) { //TODO If 0?
+                        if(is_vertex) {
+                            if (is_special_vertex || is_first_special_vertex) {
+                                is_first_special_vertex = false;
+                                is_special_vertex = false;
+                            }
+                            else {
+                                is_special_vertex = true;
+                            }
+                        }
+                    }
+
+                    /*if(changed)
+                         end_pix = cur_y_cord[ind-1];
+                    else {
+                        end_pix = cur_y_cord[ind];
+                        ++ind;
+                    }*/
+
+                    end_pix = cur_y_cord[ind-1];
+                    norm_array.push([start_pix.x_,end_pix.x_]);
+                    if(is_special_vertex || is_first_special_vertex) {
+                        norm_array.push([start_pix.x_, end_pix.x_]);
+                    }
+                }
+            }
+            //console.log(" ");
+            console.dir(norm_array);
+            //console.log(" ");
+            for(ind = 0; ind <= norm_array.length-2;ind+=2) {
+                var start = norm_array[ind];
+                var end = norm_array[ind+1];
+                if(end[0]-start[1] > 1) {
+                    this.#canvas.drawLine(start[1]+1, cur_y, end[0], cur_y);
+                }
+            }
+            /*for (let j = 0; j < amount_of_coord - 1;++j) {
+                var first1 = cur_y_cord[j];
+                var f_x1 = first1.x_;
+                var f_y1 = first1.y_;
+
+                var second1 = cur_y_cord[j + 1]
+                var s_x1 = second1.x_;
+                var s_y1 = second1.y_;
+
+                if (Math.abs(second1.x_ - first1.x_) > 1) {
+                    if (Math.min(Math.abs(f_x1 - first1.min_x_of_edge), Math.abs(f_x1 - first1.max_x_of_edge)) <= 1
+                        && Math.min(Math.abs(f_y1 - first1.min_y_of_edge), Math.abs(f_y1 - first1.max_y_of_edge)) <= 1) {
+                        ++dots_num;
+                        norm_array.push(first1);
+                        categ_of_points.push("vertex");
+                        continue;// It is not pair dot
+                    }
+                    ++dots_num;
+                    norm_array.push(first1);
+                    categ_of_points.push("edge");
+                }
+            }
+            console.log("arr_dots", norm_array, "categ",categ_of_points);
+*/
+            /* if(amount_of_coord > 1) {
+                 for(let ind = 0; ind < norm_array.length-1;++ind) {
+                     var first = cur_y_cord[j];
+                 }
+                 for (let j = 0; j < amount_of_coord - 1;++j) {
+                     var first = cur_y_cord[j];
+                     var f_x = first.x_;
+                     var f_y = first.y_;
+                     var second = cur_y_cord[j + 1]
+                     var s_x = second.x_;
+                     var s_y = second.y_;
+
+
+                     if (Math.abs(second.x_ - first.x_) > 1) {
+                         if (Math.min(Math.abs(f_x - first.min_x_of_edge), Math.abs(f_x - first.max_x_of_edge)) <= 1
+                             && Math.min(Math.abs(f_y - first.min_y_of_edge), Math.abs(f_y - first.max_y_of_edge)) <= 1) {
+                             continue;// It is not pair dot
+                         }
+                         this.#canvas.drawLine(first.x_, first.y_, second.x_ - 1, second.y_);
+                     }
+                 }
+             }*/
+
+        }
+
+        /*while(indx < amount_of_coord) {
+            var cur_x = cur_y_cord[indx].x_;
+            if(cur_x - last_x > 1) { // It means that now we can flood fill one line
+                if(this.#canvas.context.getImageData(cur_x-1,cur_y-1,1,1).data === this.#canvas.boundColorArr) {
+                    this.#canvas.drawLine(last_x, cur_y, cur_x - 1, cur_y);
+                    console.log("line", cur_y);
+                }
+            }
+            ++indx;
+            last_x = cur_x;
+        }*/
+        /*if(cur_y_cord.length > 1) {
+            var startPix = cur_y_cord[0];
+            var lastPix = cur_y_cord[cur_y_cord.length-1];
+            this.#canvas.drawLine(startPix.x_,startPix.y_,lastPix.x_,lastPix.y_);
+        }*/
+
+    }
+
+}
+
+canvas.addEventListener('click', function (e) {
+    if (canvas_class.curr_state === canvas_class.States.wait) {
+        // TODO Add something later
+
+    }
+
+    if (canvas_class.curr_state === canvas_class.States.drawRect) {
+        let cur_poly = canvas_class.getLastPoly();
+        cur_poly.addVertex(e.offsetX,e.offsetY);
+
+    }
+});
+
+canvas.addEventListener('contextmenu', function (e) {
+    if (!drawLine) {
+        drawLine = true;
+        for (let i = 0; i < points.length; i++) {
+            let x11 = points[i].x;
+            let y11 = points[i].y;
+            let x22 = points[(i + 1) % (points.length)].x;
+            let y22 = points[(i + 1) % (points.length)].y;
+            //console.log(x11, y11, x22, y22);
+            line(ctx, x11, y11, x22, y22);
+        }
+        fill = true;
+        points = [];
+    }
+});
+
+document.addEventListener('keydown',function (event) {
+    const keyName = event.key;
+    if(canvas_class.curr_state === canvas_class.States.drawRect) {
+        canvas_class.setColor(canvas_class.boundColor);
+        if (keyName === 'Enter') { // Finish the polygon
+            /*filling(startPoint);
+            // startPoint = null;
+            fill = false;
+            drawLine = false;*/
+            let cur_poly = canvas_class.getLastPoly();
+            cur_poly.finishDraw();
+            stateOfProg.value = "The polygon is drawn successfully! Press \"F\" to flood fill the last polygon";
+        }
+
+    }
+    if(canvas_class.curr_state === canvas_class.States.fillPoly) {
+        if(keyName === "f" ||keyName === "а") {
+
+            let prom = new Promise(resolve => {
+                stateOfProg.value = "Program IS IN PROCESS! Please wait =) Or tell to my creator how to display flood filling in dynamic!!!";
+                canvas_class.setColor(canvas_class.fillColor);
+                let cur_poly = canvas_class.getLastPoly();
+                cur_poly.floodFillPoly();
+                resolve("Polygon successful was flood fill! Now restart the page and try AGAIN! =)");
+            });
+            prom.then((mess) => {stateOfProg.value = mess})
+        }
+    }
+});
